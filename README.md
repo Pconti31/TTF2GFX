@@ -1,12 +1,7 @@
 # ttf2gfx utility
 
-### ttf2gfx Contents
-- `ttf2gfx-win-x.y.z.zip`: Builder Executable for Windows (in zip format)
-- `ttf2gfx-linux-x.y.z.tar.gz`: Builder Executable for Linux (tar gzip format)
-- `ttf2gfx-osx-x.y.z.zip`: Builder Executable for MacOS (in zip format)
-
 ### Brief Overview
-The ttf2gfx is a standalone desktop application to allow conversion of TrueType fonts to Adafruit's GFX Font format. 
+The ttf2gfx is a standalone desktop application to allow conversion of TrueType fonts to Adafruit's GFX Font format.
 
 The main advantage of the ttf2gfx utility is that it supports a simply way for users to pluck individual glyphs out of a larger font and assign them slots between 0 and 255. 
 
