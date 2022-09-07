@@ -1,20 +1,51 @@
 # ttf2gfx utility
 
-### Brief Overview
-The ttf2gfx is a standalone desktop application to allow conversion of TrueType fonts to Adafruit's GFX Font format.
+## Brief Overview
+The ttf2gfx is a standalone desktop application to allow conversion of TrueType fonts to Adafruit's GFX Font format. 
 
 The main advantage of the ttf2gfx utility is that it supports a simply way for users to pluck individual glyphs out of a larger font and assign them slots between 0 and 255. 
 
-Now even if a conversion program supports character 128-255 IDE's like Arduino IDE use utf8 
-encoding not 8 bit ISO8859 so your characters could be a problem when defining C string literals. 
+Now even if a conversion program supports character 128-255 IDE's like Arduino IDE use UTF8 
+encoding not 8 bit ISO8859 so your characters could be a problem when defining C string literals.
+ 
 The GUIslice Builder has been modified to detect this and output such literals as hexadecimal escape 
 strings so you don't have to do the mapping yourself.  
 
-The GUIslice Builder also makes to easy to enter characters that would otherwise be difficult to find and enter into text fields. With release 0.16.b003 you simply need to right click on a "Text" property and a mimi popup will appear allowing you to invoke a CharacterMap dialog that will show you all of the characters in a font and allow you to select and then copy them to your Text property.
+The GUIslice Builder also makes to easy to enter characters that would otherwise be difficult 
+to find and enter into text fields. With release 0.16.b003 and higher you simply need to right 
+click on a "Text" property and a mini popup will appear allowing you to invoke a CharacterMap 
+dialog that will show you all of the characters in a font and allow you to select and then copy 
+them to your Text property.
 
 See: <https://github.com/ImpulseAdventure/GUIslice-Builder>
 
-### Usage
+## Install instructions
+<p>
+The needed version of Java is now custom built and distributed with 
+the release so you no longer need to deal with its installation.
+</p>
+
+<p>
+Download ttf2gfx-{opsys}-{arch}.{release}.{build}.{zip,tgz} using 
+operating system and cpu architecture (ie., win-x64, linux-x64) from github.
+Then untar or unzip into your folder of choice and use either ttf2gfx.bat or 
+ttf2gfx.sh to run the program.
+</p>
+
+### LINUX and MACOS install Example
+
+Open a terminal
+```
+cd $HOME
+tar xvzf ttf2gfx-linux-x64-1.0.tar.gz
+```
+Then enter the new TTFGFX folder and run
+```
+cd TTFGFX
+./ttf2gfx.sh
+```
+
+## Usage
 
 After opening the application you begin by pressing the "Browse" button and selecting a TrueType font to use as input.
 
@@ -38,7 +69,7 @@ You can search the available character set for a particular glyph if you know it
 
 It's also not necessary to use all 255 slots. You can enter a smaller number inside the "End Code" text box.
 
-### Acknowledgements
+## Acknowledgements
 
 The Non-Built in Java Themes are supported by the FlatLaf project. 
 

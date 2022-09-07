@@ -43,6 +43,8 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes;
+import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes.FlatIJLookAndFeelInfo;
 
 /**
  * The Class ThemeManager.
@@ -82,7 +84,7 @@ public class ThemeManager {
     String prefNode = MY_NODE + Ttf2GfxApp.VERSION_NO;
     fPrefs = Preferences.userRoot().node(prefNode);
     System.setErr(System.err);  
-    defLafClassName = fPrefs.get(THEME_KEY, "Flat IntelliJ");
+    defLafClassName = fPrefs.get(THEME_KEY, "Arc Dark (Material)");
     themes = new ArrayList<ThemeInfo>();
     // add Flat LAF first
     themes.add( new ThemeInfo( "Flat Light"   , null, FlatLightLaf.class.getName() ) );
@@ -90,6 +92,11 @@ public class ThemeManager {
     themes.add( new ThemeInfo( "Flat IntelliJ", null, FlatIntelliJLaf.class.getName() ) );
     themes.add( new ThemeInfo( "Flat Darcula" , null, FlatDarculaLaf.class.getName() ) );
     
+    // add intellij themes next
+    for (FlatIJLookAndFeelInfo info : FlatAllIJThemes.INFOS) {
+      themes.add( new ThemeInfo( info.getName() , null, info.getClassName()) );
+    }
+
     // add system look an feels
     for (LookAndFeelInfo look_and_feel : UIManager.getInstalledLookAndFeels()) {
       JFrame.setDefaultLookAndFeelDecorated( false );
