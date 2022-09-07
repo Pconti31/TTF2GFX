@@ -81,7 +81,7 @@ public class DrawTTF extends JPanel implements Scrollable {
       return;
     }
 
-    MAXCODEPOINT = Short.MAX_VALUE;
+    MAXCODEPOINT = Short.MAX_VALUE*2;
     String testCh = null;
     Point p;
     Rectangle rect=null;
