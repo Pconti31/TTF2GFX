@@ -75,16 +75,12 @@ the release so you no longer need to deal with its installation.
 
 A windows installer has also been added.
 
-## Bug Fixes
+### Bug fixes for 2.00
+
+Added execute permissions to Java for Linux and MacOS.
+
+## Bug Fixes 1.03
 TrueType Fonts with more than 32767 code points did not display characters 32768 and higher.
-
-### Bug fixes for 2.01
-
-Added execute permissions to Java for Linux and MacOS.
-
-
-
-Added execute permissions to Java for Linux and MacOS.
 
 ## Acknowledgements
 
