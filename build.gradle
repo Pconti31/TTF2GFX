@@ -15,7 +15,7 @@ repositories {
 mainClassName = 'ttf2gfx.Ttf2GfxApp'
 applicationName = 'TTF2GFX'
 archivesBaseName = 'ttf2gfx'
-project.version = '1.03'
+project.version = '2.00'
 
 processResources { 
      from("src/main/java/") { 
@@ -191,11 +191,11 @@ task pack_LINUX_X64(type: Tar) {
   group = "assemble"
   description = "linux-x64 package distribution"
   from (DIST_LINUX_X64) {
-   exclude ("**/*.sh") // 1
+   excludes = ["**/*.sh", "**/bin/java"]
    fileMode 0644
   }
   from (DIST_LINUX_X64) {
-   include ("**/*.sh")
+   includes = ["**/*.sh", "**/bin/java"]
    fileMode 0755
   }
   archiveBaseName = "ttf2gfx-" + "linux-x64"
@@ -209,11 +209,11 @@ task pack_LINUX_AARCH64(type: Tar) {
   group = "assemble"
   description = "linux-aarch64 package distribution"
   from (DIST_LINUX_AARCH64) {
-   exclude ("**/*.sh") // 1
+   excludes = ["**/*.sh", "**/bin/java"]
    fileMode 0644
   }
   from (DIST_LINUX_AARCH64) {
-   include ("**/*.sh")
+   includes = ["**/*.sh", "**/bin/java"]
    fileMode 0755
   }
   archiveBaseName = "ttf2gfx-" + "linux-aarch64"
@@ -227,11 +227,11 @@ task pack_MAC_X64(type: Tar) {
   group = "assemble"
   description = "mac-x64 package distribution"
   from (DIST_MAC_X64) {
-   exclude ("**/*.sh") // 1
+   excludes = ["**/*.sh", "**/bin/java"]
    fileMode 0644
   }
   from (DIST_MAC_X64) {
-   include ("**/*.sh")
+   includes = ["**/*.sh", "**/bin/java"]
    fileMode 0755
   }
   archiveBaseName = "ttf2gfx-" + "mac-x64"
@@ -245,11 +245,11 @@ task pack_MAC_AARCH64(type: Tar) {
   group = "assemble"
   description = "mac-aarch64 package distribution"
   from (DIST_MAC_AARCH64) {
-   exclude ("**/*.sh") // 1
+   excludes = ["**/*.sh", "**/bin/java"]
    fileMode 0644
   }
   from (DIST_MAC_AARCH64) {
-   include ("**/*.sh")
+   includes = ["**/*.sh", "**/bin/java"]
    fileMode 0755
   }
   archiveBaseName = "ttf2gfx-" + "mac-aarch64"

@@ -69,6 +69,23 @@ You can search the available character set for a particular glyph if you know it
 
 It's also not necessary to use all 255 slots. You can enter a smaller number inside the "End Code" text box.
 
+## Enhancement
+The needed version of Java is now custom built and distributed with 
+the release so you no longer need to deal with its installation.
+
+A windows installer has also been added.
+
+## Bug Fixes
+TrueType Fonts with more than 32767 code points did not display characters 32768 and higher.
+
+### Bug fixes for 2.01
+
+Added execute permissions to Java for Linux and MacOS.
+
+
+
+Added execute permissions to Java for Linux and MacOS.
+
 ## Acknowledgements
 
 The Non-Built in Java Themes are supported by the FlatLaf project. 
