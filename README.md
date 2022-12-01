@@ -75,6 +75,9 @@ the release so you no longer need to deal with its installation.
 
 A windows installer has also been added.
 
+### Bug fixes for 2.01
+Export didn't always inform you of problems and simply looked like it was hung.
+
 ### Bug fixes for 2.00
 
 Added execute permissions to Java for Linux and MacOS.

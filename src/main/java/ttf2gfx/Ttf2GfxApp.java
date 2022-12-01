@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020 Paul Conti
+ * Copyright 2020-2022 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@ public class Ttf2GfxApp implements ActionListener {
   private FontBuilder contentPane;
   
   /** version number for our appliaction */
-  public static final String VERSION = "2.00";
+  public static final String VERSION = "2.01";
 
   /** version number for user preferences */
   public static final String VERSION_NO = "-1";

@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020 Paul Conti
+ * Copyright 2020-2022 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,6 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
@@ -96,29 +95,32 @@ public class FontGenerator {
    *          the ttf font file
    */
   public static void generateFontSet(File ttfFile) {
-    JComboBox<Integer> cbSizes = new JComboBox<Integer>(FontSizes);
-    JTextField txtOutputName = new JTextField();
-    String outputFileName = ttfFile.getName();
-    int idx = outputFileName.indexOf(".ttf");
-    outputFileName = outputFileName.substring(0,idx);
-    outputFileName = outputFileName.replaceAll("[\\s\\-\\.]", "_");
-    txtOutputName.setText(outputFileName);
-    nTotalBytes = 0;
-    Object[] message = {
-      "Font Size:", cbSizes,
-      "Output file:", txtOutputName
-    };
-    int option = JOptionPane.showConfirmDialog(null, message, "Export", JOptionPane.OK_CANCEL_OPTION);
-    if (option != JOptionPane.OK_OPTION) {
-      return;
-    }
-    Integer iSize = (Integer) cbSizes.getSelectedItem();
-    String userFileName = txtOutputName.getText();
-    userFileName = userFileName.replaceAll("[\\s\\-\\.]", "_");
-    
-    outputFileName = FontBuilder.getWorkingDir() + userFileName + "_" + iSize.toString() + "pt" + ".h";
-    //create the font to use.
     try {
+      JComboBox<Integer> cbSizes = new JComboBox<Integer>(FontSizes);
+      JTextField txtOutputName = new JTextField();
+      String outputFileName = ttfFile.getName().toLowerCase();
+      int idx = outputFileName.indexOf(".ttf");
+      if (idx != -1) {
+        outputFileName = outputFileName.substring(0,idx);
+      }
+      outputFileName = outputFileName.substring(0,idx);
+      outputFileName = outputFileName.replaceAll("[\\s\\-\\.]", "_");
+      txtOutputName.setText(outputFileName);
+      nTotalBytes = 0;
+      Object[] message = {
+        "Font Size:", cbSizes,
+        "Output file:", txtOutputName
+      };
+      int option = JOptionPane.showConfirmDialog(null, message, "Export", JOptionPane.OK_CANCEL_OPTION);
+      if (option != JOptionPane.OK_OPTION) {
+        return;
+      }
+      Integer iSize = (Integer) cbSizes.getSelectedItem();
+      String userFileName = txtOutputName.getText();
+      userFileName = userFileName.replaceAll("[\\s\\-\\.]", "_");
+      
+      outputFileName = FontBuilder.getWorkingDir() + userFileName + "_" + iSize.toString() + "pt" + ".h";
+      //create the font to use.
       /* Use scaling factor to reset size of font,
        * If we don't account for this the font will appear half the size
        * of Adafruit's Free Fonts.
@@ -128,40 +130,33 @@ public class FontGenerator {
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       //register the font
       ge.registerFont(font);
-    } catch (Exception e) {
-      JOptionPane.showMessageDialog(null, 
-          e.toString(), 
-          "ERROR",
-          JOptionPane.ERROR_MESSAGE);
-      return;
-    }
 
-    image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-    g2d = (Graphics2D) image.getGraphics();
-    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-            RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-    g2d.setFont(font);
-    fontMetrics = g2d.getFontMetrics();
+      image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+      g2d = (Graphics2D) image.getGraphics();
+      g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+              RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+      g2d.setFont(font);
+      fontMetrics = g2d.getFontMetrics();
 //    baselineY = fontMetrics.getMaxAscent();
-    ArrayList<FontGFXGlyph> fontList = new ArrayList<FontGFXGlyph>();
-    for (CharacterHelper h : DrawGFX.characterList) {
-      fontList.add(decodeChar(h));
-    }
-    StringBuilder sBd = new StringBuilder();
-    File fontSet = new File(outputFileName);
-    String fontName = fontSet.getName();
-    int n = fontName.indexOf(".h");
-    fontName = fontName.substring(0,n);
-    buildFontSet(sBd, fontName, fontList);
-    BufferedWriter bw = null;
-    try {
+      ArrayList<FontGFXGlyph> fontList = new ArrayList<FontGFXGlyph>();
+      for (CharacterHelper h : DrawGFX.characterList) {
+        fontList.add(decodeChar(h));
+      }
+      StringBuilder sBd = new StringBuilder();
+      File fontSet = new File(outputFileName);
+      String fontName = fontSet.getName();
+      int n = fontName.indexOf(".h");
+      fontName = fontName.substring(0,n);
+      buildFontSet(sBd, fontName, fontList);
+      BufferedWriter bw = null;
+
       bw = new BufferedWriter(new OutputStreamWriter(
           new FileOutputStream(fontSet), "UTF-8"));
       bw.write(sBd.toString());
       bw.flush();
       bw.close();
       FontBuilder.postStatusMsg(String.format("created->%s",outputFileName),10000);
-    } catch (IOException e) {
+    } catch (Exception e) {
       JOptionPane.showMessageDialog(null, 
           e.toString(), 
           "ERROR",

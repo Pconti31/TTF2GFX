@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020 Paul Conti
+ * Copyright 2020-2022 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -176,7 +176,7 @@ public class DrawGFX extends JPanel {
       currentCharacter.ch = selected.ch;
       currentCharacter.replace_code = selected.nCode;
       currentCharacter.bValid = true;
-      System.out.println("Drop loc: "+ currentCharacter.r);
+//      System.out.println("Drop loc: "+ currentCharacter.r);
       clearCurChar();
       FontBuilder.availableCharPane.clearCurChar();
       repaint();
