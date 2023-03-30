@@ -5,8 +5,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -20,8 +19,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
-import javax.swing.Scrollable;
-
 import java.awt.Font;
 
 public class DrawTTF extends JPanel implements Scrollable {
@@ -32,7 +29,7 @@ public class DrawTTF extends JPanel implements Scrollable {
   private int SCROLL_TOP_ROW = 0;
   private int SCROLL_MAX_ROW = 0;
 //  private int Y_AXIS = 0;
-  private int GRID_HEIGHT = 560;
+  public static int GRID_HEIGHT = 560;
   private static final int NUM_ROWS = 16;
   private static final int NUM_COLS = 16;
   private static final int BOX_WIDTH = 35;
@@ -81,7 +78,7 @@ public class DrawTTF extends JPanel implements Scrollable {
       return;
     }
 
-    MAXCODEPOINT = Short.MAX_VALUE*2;
+    MAXCODEPOINT = 65535;
     String testCh = null;
     Point p;
     Rectangle rect=null;
@@ -114,7 +111,7 @@ public class DrawTTF extends JPanel implements Scrollable {
   public void searchCharCode() {
     String sCodePoint = (String) JOptionPane.showInputDialog(null,
         "Enter Code Point:",
-        "Enter width", JOptionPane.PLAIN_MESSAGE, null, null, null);
+        "Use Hexadecimal", JOptionPane.PLAIN_MESSAGE, null, null, null);
     int code_point;
     try {
       if (sCodePoint.isEmpty() || sCodePoint == null)
@@ -123,10 +120,13 @@ public class DrawTTF extends JPanel implements Scrollable {
           sCodePoint.toLowerCase().startsWith("x")) {
         code_point = Integer.decode(sCodePoint);
       } else {
-        code_point = Integer.parseInt(sCodePoint);
+        sCodePoint = "0x" + sCodePoint;
+//        code_point = Integer.parseInt(sCodePoint);
+        code_point = Integer.decode(sCodePoint);
+//        System.out.println(String.format("***findChar MATCH->%s",h.toString()));
       }
     } catch (NumberFormatException nfExc) {
-      JOptionPane.showConfirmDialog(null, "Input must be number! Decimal or Hexidecimal", "Error!",
+      JOptionPane.showConfirmDialog(null, "Input must be Hexidecimal", "Error!",
           JOptionPane.PLAIN_MESSAGE);
       return;
     }
@@ -138,6 +138,9 @@ public class DrawTTF extends JPanel implements Scrollable {
         return;
       }
     }
+    String message = String.format("Could not find %s",sCodePoint);
+    JOptionPane.showConfirmDialog(null, message, "Error!",
+      JOptionPane.PLAIN_MESSAGE);
   }
   public boolean findChar(Point p) {
 //    System.out.println(String.format("findChar point=%s",p.toString()));
@@ -277,7 +280,6 @@ public class DrawTTF extends JPanel implements Scrollable {
 
   @Override
   public Dimension getPreferredScrollableViewportSize() {
-    // TODO Auto-generated method stub
     return null;
   }
 

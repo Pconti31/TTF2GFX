@@ -56,7 +56,7 @@ import javax.swing.JTextField;
 public class FontGenerator {
 
   /** The Font sizes. */
-  private static Integer[] FontSizes= {8,10,12,14,16,18,20,22,24,26,28,36,48,72};
+  private static Integer[] FontSizes= {6,8,10,12,14,16,18,20,22,24,26,28,36,48,72};
   
   /** The g 2 d. */
   private static Graphics2D g2d;
@@ -119,7 +119,7 @@ public class FontGenerator {
       String userFileName = txtOutputName.getText();
       userFileName = userFileName.replaceAll("[\\s\\-\\.]", "_");
       
-      outputFileName = FontBuilder.getWorkingDir() + userFileName + "_" + iSize.toString() + "pt" + ".h";
+      outputFileName = FontBuilder.getWorkingDir() + userFileName + iSize.toString() + "pt" + ".h";
       //create the font to use.
       /* Use scaling factor to reset size of font,
        * If we don't account for this the font will appear half the size

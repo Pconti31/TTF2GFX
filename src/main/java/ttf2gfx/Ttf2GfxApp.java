@@ -54,7 +54,7 @@ public class Ttf2GfxApp implements ActionListener {
   private FontBuilder contentPane;
   
   /** version number for our appliaction */
-  public static final String VERSION = "2.01";
+  public static final String VERSION = "2.02";
 
   /** version number for user preferences */
   public static final String VERSION_NO = "-1";
@@ -168,7 +168,7 @@ public class Ttf2GfxApp implements ActionListener {
         JOptionPane.showMessageDialog(null, "Program to convert TrueType Fonts\n" 
         + "to Adafruit's GFX font format.\n\n"
         + " ver " + VERSION + "\n" 
-        + "Copyright (c) 2020 Paul Conti\n"
+        + "Copyright (c) 2023 Paul Conti\n"
         , "About Image2C", JOptionPane.INFORMATION_MESSAGE);
         break;
     

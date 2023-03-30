@@ -153,7 +153,7 @@ public class FontBuilder extends JPanel {
       }
     });
     
-    JButton btnSearchCode = new JButton("Search");
+    JButton btnSearchCode = new JButton("Go to Unicode");
     btnSearchCode.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         availableCharPane.searchCharCode();
@@ -432,7 +432,7 @@ public class FontBuilder extends JPanel {
     chosenCharPane.add(lblBusyWait);
     
     availableCharPane = new DrawTTF();
-    availableCharPane.setPreferredSize(new Dimension(490,7500));
+    availableCharPane.setPreferredSize(new Dimension(490,100000));
     // setup for drag operations
     MyDragGestureListener dlistener = new MyDragGestureListener();
     DragSource dragSource = new DragSource();
@@ -516,6 +516,7 @@ public class FontBuilder extends JPanel {
         txtFont.setText(family);
         chosenCharPane.updateFont(ttfFile);
         availableCharPane.updateFont(ttfFile);
+        availableCharPane.setPreferredSize(new Dimension(490,DrawTTF.GRID_HEIGHT));
       } catch (IOException e) {
         postStatusMsg(e.toString(), 10000);
         option = JFileChooser.ERROR_OPTION;
