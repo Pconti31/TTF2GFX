@@ -70,10 +70,15 @@ You can search the available character set for a particular glyph if you know it
 It's also not necessary to use all 255 slots. You can enter a smaller number inside the "End Code" text box.
 
 ## Enhancement
+Renamed Search to Go To Unicode.
+
 The needed version of Java is now custom built and distributed with 
 the release so you no longer need to deal with its installation.
 
 A windows installer has also been added.
+
+### Bug fixes for 2.02
+Issue 10 - Manual code point entry for Chinese fonts.
 
 ### Bug fixes for 2.01
 Export didn't always inform you of problems and simply looked like it was hung.
