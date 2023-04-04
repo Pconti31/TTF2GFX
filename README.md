@@ -77,6 +77,9 @@ the release so you no longer need to deal with its installation.
 
 A windows installer has also been added.
 
+### Bug fixes for 2.03
+Issue 12 - Missing code points per row.
+
 ### Bug fixes for 2.02
 Issue 10 - Manual code point entry for Chinese fonts.
 
