@@ -15,7 +15,7 @@ repositories {
 mainClassName = 'ttf2gfx.Ttf2GfxApp'
 applicationName = 'TTF2GFX'
 archivesBaseName = 'ttf2gfx'
-project.version = '2.02'
+project.version = '2.03'
 
 processResources { 
      from("src/main/java/") { 

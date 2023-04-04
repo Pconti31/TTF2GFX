@@ -31,7 +31,7 @@ public class DrawTTF extends JPanel implements Scrollable {
 //  private int Y_AXIS = 0;
   public static int GRID_HEIGHT = 560;
   private static final int NUM_ROWS = 16;
-  private static final int NUM_COLS = 16;
+  private static final int NUM_COLS = 14;
   private static final int BOX_WIDTH = 35;
   public static final int BOX_HEIGHT = 35;
   private static final int MARGIN = 0;
@@ -130,6 +130,7 @@ public class DrawTTF extends JPanel implements Scrollable {
           JOptionPane.PLAIN_MESSAGE);
       return;
     }
+    CharacterHelper prev = null;
     for (CharacterHelper h : characterList) {
       if (h.nCode == code_point) {
         scrollRectToVisible(h.r);
@@ -137,10 +138,15 @@ public class DrawTTF extends JPanel implements Scrollable {
         repaint();
         return;
       }
+      if (h.nCode > code_point) break;
+      prev = h;
     }
-    String message = String.format("Could not find %s",sCodePoint);
-    JOptionPane.showConfirmDialog(null, message, "Error!",
+    String message = String.format("Could not find %s so scrolled to nearest code",sCodePoint);
+    JOptionPane.showConfirmDialog(null, message, "Warning!",
       JOptionPane.PLAIN_MESSAGE);
+    scrollRectToVisible(prev.r);
+    currentCharacter = prev;
+    repaint();
   }
   public boolean findChar(Point p) {
 //    System.out.println(String.format("findChar point=%s",p.toString()));
