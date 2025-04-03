@@ -77,6 +77,11 @@ the release so you no longer need to deal with its installation.
 
 A windows installer has also been added.
 
+### Bug fixes for 2.04
+Issue 14 - Error: Unable to access jarfile ttf2gfx-1.00.jar using linux or mac
+Turns out the new ttf2gfx.sh wasn't checkin to github. No jar file is needed now that a custom built Java is included.
+The correct ttf2gfx.sh script has been added.
+
 ### Bug fixes for 2.03
 Issue 12 - Missing code points per row.
 
