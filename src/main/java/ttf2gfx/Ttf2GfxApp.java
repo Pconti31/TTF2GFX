@@ -54,7 +54,7 @@ public class Ttf2GfxApp implements ActionListener {
   private FontBuilder contentPane;
   
   /** version number for our appliaction */
-  public static final String VERSION = "2.03";
+  public static final String VERSION = "2.04";
 
   /** version number for user preferences */
   public static final String VERSION_NO = "-1";
