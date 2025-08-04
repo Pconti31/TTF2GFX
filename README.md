@@ -49,25 +49,30 @@ cd TTFGFX
 
 After opening the application you begin by pressing the "Browse" button and selecting a TrueType font to use as input.
 
-The first 255 characters will be automatically loaded into slots 0-255. 
+The first 127 characters will be automatically loaded into slots 0-255. 
 
-Note that most fonts have 32 control characters in slots 128 to 159. You will notice such characters displayed as a red box.  These slots can be assigned other character codes. 
+Note that the first 32 slots are control characters that should not be over-written.
 
-If after loading your font you are satisfied with the resulting character set simply press export button. 
+You will notice any non-displayable characters will shown as a red box. 
 
-Otherwise you can start choosing characters from the available character set and selecting a slot to place the choosen character into the choosen character set. 
+Start choosing any additional characters from the available character set and dragging them over one by one slots
+in the choosen character set and dropping them in place.
 
-Once both characters have been selected press "`<<<<Replace`" button to make the substitution. Continue selectiong characters until you are happy with the choosen character set.
+Continue selectiong characters until you are happy with the choosen character set.
 
-After you press export you will be asked for the size of the font from 8 to 72 and for a name.  A default name of your input font will be provided but you can override it.
+After you press export you will be asked for the size of the font from 8 to 72 and for a name.  
+A default name of your input font will be provided but you can override it.
 
-Press the "x" in the top frame of the ttf2gfx app to exit.
+Press the "Exit" button to exit.
 
-Two other minor features are present. 
+Other features are present. 
 
-You can search the available character set for a particular glyph if you know its unicode value. This value can be entered as either a hexadecimal number of the form 0xnnnn or as a decimal ten based number.
+Rather than drag and drop each character you can copy entire code blocks.
 
-It's also not necessary to use all 255 slots. You can enter a smaller number inside the "End Code" text box.
+You can search the available character set for a particular glyph if you know its unicode value. 
+This value can be entered as either a hexadecimal number of the form 0xnnnn or as a decimal ten based number.
+
+It's also not necessary to use all 255 slots. You can enter a smaller number inside the "Ending GFX Position" text box.
 
 ## Enhancement
 Renamed Search to Go To Unicode.
@@ -76,6 +81,14 @@ The needed version of Java is now custom built and distributed with
 the release so you no longer need to deal with its installation.
 
 A windows installer has also been added.
+
+### Enhancements for 2.05
+Dragging and Dropping characters from a true type font over to a GFX font works fine but can be hard to do when you 
+have a large number characters to move. So a batch copy of code blocks has been added. So say you were creating 
+a Japanese font using Hiragana and Katakana.  You could first copy over numbers 0-9 using code block starting 30 
+and ending 30 to gfx codes 33-42, then copy over Hiragana code block starting 3040 to 309f to GFX code 43,
+then ending with Katakana code block 30a0 to 30ff to gfx code 151. Change the text field "Ending GFX Position" 
+from 255 to 246 and export.
 
 ### Bug fixes for 2.04
 Issue 14 - Error: Unable to access jarfile ttf2gfx-1.00.jar using linux or mac
