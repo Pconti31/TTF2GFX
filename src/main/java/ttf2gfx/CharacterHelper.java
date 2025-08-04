@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020 Paul Conti
+ * Copyright 2020-2025 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,12 +45,12 @@ public class CharacterHelper {
   /** The row this character appears on */
   public int row;
   
-  /** The n code. */
-  public int nCode;
+  /** The u code is the ascii or unicode. */
+  public int uCode;
   
-  /** The s code. */
+  /** The s code is the GFX character integer 0-255 as string. */
   public String sCode;
-  
+
   /** The b valid. */
   public boolean bValid;
   
@@ -61,19 +61,19 @@ public class CharacterHelper {
    *          the r
    * @param ch
    *          the ch
-   * @param nCode
+   * @param uCode
    *          the n code
    * @param sCode
    *          the s code
    * @param bValid
    *          the b valid
    */
-  public CharacterHelper(int row, Rectangle r, String ch, int nCode, String sCode, boolean bValid) {
+  public CharacterHelper(int row, Rectangle r, String ch, int uCode, String sCode, boolean bValid) {
     this.row = row;
     this.ch = ch;
     this.replace_code = -1;
     this.r = r;
-    this.nCode = nCode;
+    this.uCode = uCode;
     this.sCode = sCode;
     this.bValid = bValid;
   }
@@ -94,10 +94,10 @@ public class CharacterHelper {
    * toString.
    *
    * @return the <code>string</code> object
-   * @see java.lang.Object#toString()
+   * @see Object#toString()
    */
   @Override
   public String toString() {
-    return String.format("CharacterHelper: %s code: %s [%d] rect: %s", ch, sCode, nCode, r.toString());
+    return String.format("CharacterHelper: %s code: %s [%d] rect: %s", ch, sCode, uCode, r.toString());
   }
 }

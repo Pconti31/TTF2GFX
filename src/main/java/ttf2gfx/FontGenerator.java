@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020-2022 Paul Conti
+ * Copyright 2020-2025 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,7 +73,7 @@ public class FontGenerator {
   /** The font. */
   private static Font font = null;
   
-  private static int nTotalBytes;
+  private static int endCode;
   
   /* Java Fonts are in Points with 72 points per inch (DPI)
    * Windows used to be 96 DPI
@@ -94,33 +94,37 @@ public class FontGenerator {
    * @param ttfFile
    *          the ttf font file
    */
-  public static void generateFontSet(File ttfFile) {
+  public static void generateOutput(File ttfFile) {
+    JComboBox<Integer> cbSizes = new JComboBox<Integer>(FontSizes);
+    JTextField txtOutputName = new JTextField();
+    String baseFileName = ttfFile.getName().toLowerCase();
+    int idx = baseFileName.indexOf(".ttf");
+    if (idx != -1) {
+      baseFileName = baseFileName.substring(0, idx);
+    }
+    baseFileName = baseFileName.substring(0, idx);
+    baseFileName = baseFileName.replaceAll("[\\s\\-\\.]", "_");
+    txtOutputName.setText(baseFileName);
+    Object[] message = {
+      "Font Size:", cbSizes,
+      "Output file:", txtOutputName
+    };
+    int option = JOptionPane.showConfirmDialog(null, message, "Export", JOptionPane.OK_CANCEL_OPTION);
+    if (option != JOptionPane.OK_OPTION) {
+      return;
+    }
+    Integer iSize = (Integer) cbSizes.getSelectedItem();
+    String userFileName = txtOutputName.getText();
+    userFileName = userFileName.replaceAll("[\\s\\-\\.]", "_");
+    userFileName = userFileName + iSize.toString() + "pt";
+    generateGfxFont(ttfFile, userFileName, iSize);
+//    generateGfxMap(userFileName);
+  }
+  public static void generateGfxFont(File ttfFile, String userFileName, Integer iSize) {
     try {
-      JComboBox<Integer> cbSizes = new JComboBox<Integer>(FontSizes);
-      JTextField txtOutputName = new JTextField();
-      String outputFileName = ttfFile.getName().toLowerCase();
-      int idx = outputFileName.indexOf(".ttf");
-      if (idx != -1) {
-        outputFileName = outputFileName.substring(0,idx);
-      }
-      outputFileName = outputFileName.substring(0,idx);
-      outputFileName = outputFileName.replaceAll("[\\s\\-\\.]", "_");
-      txtOutputName.setText(outputFileName);
-      nTotalBytes = 0;
-      Object[] message = {
-        "Font Size:", cbSizes,
-        "Output file:", txtOutputName
-      };
-      int option = JOptionPane.showConfirmDialog(null, message, "Export", JOptionPane.OK_CANCEL_OPTION);
-      if (option != JOptionPane.OK_OPTION) {
-        return;
-      }
-      Integer iSize = (Integer) cbSizes.getSelectedItem();
-      String userFileName = txtOutputName.getText();
-      userFileName = userFileName.replaceAll("[\\s\\-\\.]", "_");
-      
-      outputFileName = FontBuilder.getWorkingDir() + userFileName + iSize.toString() + "pt" + ".h";
       //create the font to use.
+      endCode = Integer.valueOf(FontBuilder.txtGFXEND.getText());
+
       /* Use scaling factor to reset size of font,
        * If we don't account for this the font will appear half the size
        * of Adafruit's Free Fonts.
@@ -141,13 +145,12 @@ public class FontGenerator {
       ArrayList<FontGFXGlyph> fontList = new ArrayList<FontGFXGlyph>();
       for (CharacterHelper h : DrawGFX.characterList) {
         fontList.add(decodeChar(h));
+        if (Integer.valueOf(h.sCode) == endCode)
+          break;
       }
       StringBuilder sBd = new StringBuilder();
-      File fontSet = new File(outputFileName);
-      String fontName = fontSet.getName();
-      int n = fontName.indexOf(".h");
-      fontName = fontName.substring(0,n);
-      buildFontSet(sBd, fontName, fontList);
+      File fontSet = new File(FontBuilder.getWorkingDir() + userFileName + ".h");
+      buildCharacterSet(sBd, userFileName, fontList);
       BufferedWriter bw = null;
 
       bw = new BufferedWriter(new OutputStreamWriter(
@@ -155,7 +158,7 @@ public class FontGenerator {
       bw.write(sBd.toString());
       bw.flush();
       bw.close();
-      FontBuilder.postStatusMsg(String.format("created->%s",outputFileName),10000);
+      FontBuilder.postStatusMsg(String.format("created->%s.h",userFileName),10000);
     } catch (Exception e) {
       JOptionPane.showMessageDialog(null, 
           e.toString(), 
@@ -163,7 +166,42 @@ public class FontGenerator {
           JOptionPane.ERROR_MESSAGE);
     }
   }
-  
+  public static void generateGfxMap(String userFileName) {
+    try {
+      String outputFileName = FontBuilder.getWorkingDir() + userFileName + ".map";
+      StringBuilder sBd = new StringBuilder();
+      sBd.append("// Created by ttf2gfx utility\n");
+      sBd.append("// Mapping data for GUIsliceBuilder that allows cut and paste\n");
+      sBd.append("// into Text fields of Uincode characters to be remapped to GFX characters 0-255\n");
+      sBd.append("// On each line is the GFX code followed by its Unicode\n");
+      sBd.append("// If the code is simple ascci 0 to 255 then no output occurs\n");
+
+      sBd.append("    // Bitmap Data:\n");
+      for (CharacterHelper h : DrawGFX.characterList) {
+        if (h.bValid) {
+          if (h.uCode > 255) {
+            sBd.append(h.sCode);
+            sBd.append(", ");
+            sBd.append(Integer.toHexString(h.uCode));
+            sBd.append(" // '" + String.valueOf(h.ch) + "'\n");
+          }
+        }
+      }
+      File fontSet = new File(FontBuilder.getWorkingDir() + userFileName + ".map");
+      BufferedWriter bw = null;
+      bw = new BufferedWriter(new OutputStreamWriter(
+        new FileOutputStream(fontSet), "UTF-8"));
+      bw.write(sBd.toString());
+      bw.flush();
+      bw.close();
+    } catch (Exception e) {
+      JOptionPane.showMessageDialog(null,
+        e.toString(),
+        "ERROR",
+        JOptionPane.ERROR_MESSAGE);
+    }
+  }
+
   /**
    * Builds the font set.
    *
@@ -174,7 +212,7 @@ public class FontGenerator {
    * @param fontList
    *          the font list
    */
-  private static void buildFontSet(StringBuilder sBd, String fontName, ArrayList<FontGFXGlyph> fontList) {
+  private static void buildCharacterSet(StringBuilder sBd, String fontName, ArrayList<FontGFXGlyph> fontList) {
     sBd.append("// Created by ttf2gfx utility\n");
     sBd.append("const uint8_t " + fontName + "Bitmaps[] PROGMEM = {\n");
     
@@ -189,9 +227,7 @@ public class FontGenerator {
         bFirst = false;
         jumpPointer += letter.bitmap.length;
         counter++;
-        nTotalBytes += letter.bitmap.length;
     }
-    nTotalBytes += DrawGFX.characterList.size() * 7; // now account for Glyphs array
     sBd.append("};\n");
     sBd.append("const GFXglyph " + fontName + "Glyphs[] PROGMEM = {\n");
     sBd.append("// bitmapOffset, width, height, xAdvance, xOffset, yOffset\n");
@@ -207,7 +243,7 @@ public class FontGenerator {
             sBd.append(",");
         }
         if (letter.bValid)
-          sBd.append(" // '" + String.valueOf(letter.ch) + "'\n");
+          sBd.append(" // '" + String.valueOf(letter.ch) + "\n");
         else 
           sBd.append(" // " + "\n");
         counter++;
@@ -219,9 +255,8 @@ public class FontGenerator {
     sBd.append("    (uint8_t  *)" + fontName + "Bitmaps,\n");
     sBd.append("    (GFXglyph *)" + fontName + "Glyphs,\n");
     sBd.append(String.format("    0x%02X, \n", (byte) FontBuilder.START_CODE));
-    sBd.append(String.format("    0x%02X, \n", (byte) FontBuilder.END_CODE));
+    sBd.append(String.format("    0x%02X, \n", (byte) endCode));
     sBd.append(String.format("    %d\n};\n", (byte) fontMetrics.getHeight()));
-    sBd.append(String.format("// Approx. %d bytes", nTotalBytes));
   }
   
   /**
@@ -234,7 +269,7 @@ public class FontGenerator {
   private static FontGFXGlyph decodeChar(CharacterHelper h) {
     char ch;
     if (h.replace_code == -1)
-      ch = (char)h.nCode;
+      ch = (char)h.uCode;
     else
       ch = (char)h.replace_code;
     

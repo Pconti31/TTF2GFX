@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020-2022 Paul Conti
+ * Copyright 2020-2025 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,14 +54,15 @@ public class Ttf2GfxApp implements ActionListener {
   private FontBuilder contentPane;
   
   /** version number for our appliaction */
-  public static final String VERSION = "2.04";
+  public static final String VERSION = "2.05";
 
   /** version number for user preferences */
   public static final String VERSION_NO = "-1";
   
   /** our top frame */
-  JFrame frame;
+  public static JFrame TopFrame;
 
+  public static String PROGRAM_TITLE = "Ttf2GfxApp Font Converter";
   /**
    * Launch the application.
    *
@@ -93,19 +94,19 @@ public class Ttf2GfxApp implements ActionListener {
    * Initializes the UI.
    */
   public void initUI() {
-    frame = new JFrame();
-    frame.setTitle("Ttf2GfxApp Font Converter");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    TopFrame = new JFrame();
+    TopFrame.setTitle(PROGRAM_TITLE);
+    TopFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     
     JMenuBar menuBar = new JMenuBar();
-    frame.setJMenuBar(menuBar);
+    TopFrame.setJMenuBar(menuBar);
     
     JMenu mbFile = new JMenu("File");
     menuBar.add(mbFile);
     
     JMenuItem openMenuItem = new JMenuItem("Open",
         new ImageIcon(Ttf2GfxApp.class.getResource("/resources/open.png")));
-    openMenuItem.setToolTipText("Open image file");
+    openMenuItem.setToolTipText("Open Font file");
     openMenuItem.addActionListener(this);
     openMenuItem.setActionCommand("open");
     mbFile.add(openMenuItem);
@@ -145,11 +146,11 @@ public class Ttf2GfxApp implements ActionListener {
     contentPane = new FontBuilder();
     contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-    frame.setBounds(100,100,870, 565);
-    frame.getContentPane().add(contentPane);
-    frame.pack();
-    frame.setLocationRelativeTo(null);
-    frame.setVisible(true);
+    TopFrame.setBounds(100,100,1140, 580);
+    TopFrame.getContentPane().add(contentPane);
+    TopFrame.pack();
+    TopFrame.setLocationRelativeTo(null);
+    TopFrame.setVisible(true);
   }
 
   /**
@@ -157,7 +158,7 @@ public class Ttf2GfxApp implements ActionListener {
    *
    * @param e
    *          the e
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+   * @see ActionListener#actionPerformed(ActionEvent)
    */
   @Override
   public void actionPerformed(ActionEvent e) {
@@ -168,7 +169,7 @@ public class Ttf2GfxApp implements ActionListener {
         JOptionPane.showMessageDialog(null, "Program to convert TrueType Fonts\n" 
         + "to Adafruit's GFX font format.\n\n"
         + " ver " + VERSION + "\n" 
-        + "Copyright (c) 2023 Paul Conti\n"
+        + "Copyright (c) 2023-2025 Paul Conti\n"
         , "About Image2C", JOptionPane.INFORMATION_MESSAGE);
         break;
     
@@ -181,7 +182,7 @@ public class Ttf2GfxApp implements ActionListener {
         break;
         
       case "export":
-       FontGenerator.generateFontSet(FontBuilder.ttfFile);
+       FontGenerator.generateOutput(FontBuilder.ttfFile);
        break;
 
       case "themes":
@@ -198,7 +199,7 @@ public class Ttf2GfxApp implements ActionListener {
         String name = (String)comboBox.getSelectedItem();
         ThemeManager.saveLookAndFeel(name);
         ThemeManager.setLookAndFeel(name);
-        SwingUtilities.updateComponentTreeUI(frame);
+        SwingUtilities.updateComponentTreeUI(TopFrame);
         break;
         
       default:
