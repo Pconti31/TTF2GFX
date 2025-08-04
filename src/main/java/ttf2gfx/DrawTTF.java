@@ -1,3 +1,28 @@
+/**
+ *
+ * The MIT License
+ *
+ * Copyright 2023-2025 Paul Conti
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
 package ttf2gfx;
 
 //import java.awt.BasicStroke;
@@ -24,14 +49,14 @@ import java.awt.Font;
 public class DrawTTF extends JPanel implements Scrollable {
   private static final long serialVersionUID = 1L;
 
-  private static final int PANEL_WIDTH = 490;
+  private static final int PANEL_WIDTH = 560;
   private int MAXCODEPOINT = 0;
   private int SCROLL_TOP_ROW = 0;
   private int SCROLL_MAX_ROW = 0;
 //  private int Y_AXIS = 0;
   public static int GRID_HEIGHT = 560;
   private static final int NUM_ROWS = 16;
-  private static final int NUM_COLS = 14;
+  private static final int NUM_COLS = 16;
   private static final int BOX_WIDTH = 35;
   public static final int BOX_HEIGHT = 35;
   private static final int MARGIN = 0;
@@ -41,16 +66,16 @@ public class DrawTTF extends JPanel implements Scrollable {
 
   protected int   nScrollPos=0;
   private CharacterHelper currentCharacter = null;
-  private List<CharacterHelper> characterList;
-  private List<Integer> rowList;
+  private List<CharacterHelper> unicodeList;
+//  private List<Integer> rowList;
 
   /**
    * Create the dialog.
    */
   public DrawTTF()  {
     this.addMouseListener(new MouseHandler());
-    characterList = new ArrayList<CharacterHelper>();
-    rowList = new ArrayList<Integer>();
+    unicodeList = new ArrayList<CharacterHelper>();
+//    rowList = new ArrayList<Integer>();
   }
   
   public CharacterHelper getSelectedChar() {
@@ -63,8 +88,8 @@ public class DrawTTF extends JPanel implements Scrollable {
   
   public void updateFont(File ttfFile) {
     currentCharacter = null;
-    characterList.clear();
-    rowList.clear();
+    unicodeList.clear();
+//    rowList.clear();
     
     fontCode = new Font("Dialog", Font.PLAIN, 12);
 
@@ -86,8 +111,9 @@ public class DrawTTF extends JPanel implements Scrollable {
     int y = 0;
     int row = 0;
     int col = 0;
-    for (int i=32; i<=MAXCODEPOINT; i++) {
-      if (col % NUM_COLS == 0 && col > NUM_COLS-1) {
+    for (int i=0; i<=MAXCODEPOINT; i++) {
+//      if (col % NUM_COLS == 0 && col > NUM_COLS-1) {
+      if (col >= NUM_COLS) {
         x = MARGIN;
         y += BOX_HEIGHT;
         row++; 
@@ -99,13 +125,77 @@ public class DrawTTF extends JPanel implements Scrollable {
       rect = new Rectangle(p.x,p.y, BOX_WIDTH,BOX_HEIGHT);
       if (canDisplay(i)) {
         String sCode = String.format("x%04x", i);
-        characterList.add(new CharacterHelper(row, rect,testCh,i,sCode,true));
+        unicodeList.add(new CharacterHelper(row, rect,testCh,i,sCode,true));
         x += BOX_WIDTH;
         col++;
       }
     }
     SCROLL_MAX_ROW = row;
     GRID_HEIGHT = y + BOX_HEIGHT;
+  }
+
+  public void copyCodeBlock() {
+    String sStartCode;
+    String sEndCode;
+    String sGFXStart;
+    int    iStartCode, iEndCode, iGFXStart;
+    JTextField startCode = new JTextField();
+    JTextField endCode = new JTextField();
+    JTextField gfxStart = new JTextField();
+    Object[] message = {
+      "Start Code(hex):  ", startCode,
+      "End Code(hex):    ", endCode,
+      "GFX Start(32-255):", gfxStart
+    };
+
+    int option = JOptionPane.showConfirmDialog(null, message, "Copy", JOptionPane.OK_CANCEL_OPTION);
+    if (option != JOptionPane.OK_OPTION) {
+      return;
+    };
+    try {
+      sStartCode = startCode.getText();
+      if (sStartCode.isEmpty() || sStartCode == null)
+        return;
+      if (sStartCode.toLowerCase().startsWith("0x") ||
+        sStartCode.toLowerCase().startsWith("x")) {
+        iStartCode = Integer.decode(sStartCode);
+      } else {
+        sStartCode = "0x" + sStartCode;
+//        code_point = Integer.parseInt(sCodePoint);
+        iStartCode = Integer.decode(sStartCode);
+      }
+      sEndCode = endCode.getText();
+      if (sEndCode.isEmpty() || sEndCode == null)
+        return;
+      if (sEndCode.toLowerCase().startsWith("0x") ||
+        sEndCode.toLowerCase().startsWith("x")) {
+        iEndCode = Integer.decode(sEndCode);
+      } else {
+        sEndCode = "0x" + sEndCode;
+//        code_point = Integer.parseInt(sCodePoint);
+        iEndCode = Integer.decode(sEndCode);
+      }
+    } catch (NumberFormatException nfExc) {
+      JOptionPane.showConfirmDialog(null, "Input must be Hexidecimal", "Error!",
+        JOptionPane.PLAIN_MESSAGE);
+      return;
+    }
+    try {
+      sGFXStart = gfxStart.getText();
+      if (sGFXStart.isEmpty() || sGFXStart == null)
+         return;
+      iGFXStart = Integer.valueOf(sGFXStart);
+      if (iGFXStart < 32 || iGFXStart > 255) {
+        JOptionPane.showConfirmDialog(null, "Input must be 32-255", "Error!",
+          JOptionPane.PLAIN_MESSAGE);
+      }
+      FontBuilder.chosenCharPane.copyCodeBlock(unicodeList, iStartCode, iEndCode, iGFXStart);
+      return;
+    } catch (NumberFormatException nfExc) {
+      JOptionPane.showConfirmDialog(null, "Input must be 32-255", "Error!",
+        JOptionPane.PLAIN_MESSAGE);
+      return;
+    }
   }
 
   public void searchCharCode() {
@@ -131,14 +221,14 @@ public class DrawTTF extends JPanel implements Scrollable {
       return;
     }
     CharacterHelper prev = null;
-    for (CharacterHelper h : characterList) {
-      if (h.nCode == code_point) {
+    for (CharacterHelper h : unicodeList) {
+      if (h.uCode == code_point) {
         scrollRectToVisible(h.r);
         currentCharacter = h;
         repaint();
         return;
       }
-      if (h.nCode > code_point) break;
+      if (h.uCode > code_point) break;
       prev = h;
     }
     String message = String.format("Could not find %s so scrolled to nearest code",sCodePoint);
@@ -150,7 +240,7 @@ public class DrawTTF extends JPanel implements Scrollable {
   }
   public boolean findChar(Point p) {
 //    System.out.println(String.format("findChar point=%s",p.toString()));
-    for (CharacterHelper h : characterList) {
+    for (CharacterHelper h : unicodeList) {
       if (h.contains(p)) {
         currentCharacter = h;
 //        System.out.println(String.format("***findChar MATCH->%s",h.toString()));
@@ -162,7 +252,7 @@ public class DrawTTF extends JPanel implements Scrollable {
   
   public CharacterHelper dragChar(Point p) {
 //  System.out.println(String.format("findChar point=%s",p.toString()));
-  for (CharacterHelper h : characterList) {
+  for (CharacterHelper h : unicodeList) {
     if (h.contains(p)) {
       currentCharacter = h;
 //      System.out.println(String.format("***findChar MATCH->%s",h.toString()));
@@ -196,7 +286,7 @@ public class DrawTTF extends JPanel implements Scrollable {
    *
    * @param g
    *          the g
-   * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+   * @see JComponent#paintComponent(Graphics)
    */
   @Override
   protected void paintComponent(Graphics g) {
@@ -210,22 +300,28 @@ public class DrawTTF extends JPanel implements Scrollable {
     g2d.setColor(Color.BLACK);
 //    System.out.println(String.format("row=%d nMaxRow=%d",SCROLL_TOP_ROW,nMaxRow));
     int yOffset = BOX_HEIGHT/2+2;
-    for (int row=0; row<=SCROLL_MAX_ROW; row++) {
-      for (int col=0; col<NUM_COLS; col++) {
-        idx = row * NUM_COLS + col;
-        if (idx < characterList.size()) {
-          CharacterHelper h = characterList.get(idx);
-//            System.out.println(String.format("idx=%d [%d][%d] code %d char[%s]",idx,h.r.x,h.r.y,h.nCode,h.ch));
-          if (h.bValid) {
-            g2d.setFont(font);
-            g2d.setColor(Color.BLACK);
-            g2d.drawString(h.ch,h.r.x+10,h.r.y+yOffset);
-            g2d.setFont(fontCode);
-            g2d.drawString(h.sCode,h.r.x,h.r.y+BOX_HEIGHT);
-          }
-        }
-      }
+    g2d.setFont(font);
+    g2d.setColor(Color.BLACK);
+    for (CharacterHelper h : unicodeList) {
+      g2d.drawString(h.ch,h.r.x+10,h.r.y+yOffset);
+      g2d.setFont(fontCode);
+      g2d.drawString(h.sCode,h.r.x,h.r.y+BOX_HEIGHT);
     }
+//    for (int row=0; row<=SCROLL_MAX_ROW; row++) {
+//      for (int col=0; col<NUM_COLS; col++) {
+//        idx = row * NUM_COLS + col;
+//        if (idx < characterList.size()) {
+//          CharacterHelper h = characterList.get(idx);
+////            System.out.println(String.format("idx=%d [%d][%d] code %d char[%s]",idx,h.r.x,h.r.y,h.nCode,h.ch));
+//          if (h.bValid) {
+//            g2d.setFont(font);
+//            g2d.setColor(Color.BLACK);
+//            g2d.drawString(h.ch,h.r.x+10,h.r.y+yOffset);
+//            g2d.setFont(fontCode);
+//            g2d.drawString(h.sCode,h.r.x,h.r.y+BOX_HEIGHT);
+//          }
+//        }
+//      }
 
 //    if (currentCharacter != null) 
 //      drawSelRect(g2d, currentCharacter.r);
@@ -350,7 +446,7 @@ public class DrawTTF extends JPanel implements Scrollable {
 
   @Override
   public boolean getScrollableTracksViewportWidth() {
-    return false;
+    return true;
   }
 
   @Override
@@ -368,7 +464,7 @@ public class DrawTTF extends JPanel implements Scrollable {
      *
      * @param e
      *          the e
-     * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+     * @see MouseAdapter#mouseClicked(MouseEvent)
      */
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -381,7 +477,7 @@ public class DrawTTF extends JPanel implements Scrollable {
     /**
      * mouseReleased
      *
-     * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
+     * @see MouseAdapter#mouseReleased(MouseEvent)
      */
     @Override
     public void mouseReleased(MouseEvent e) {

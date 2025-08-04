@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020-2022 Paul Conti
+ * Copyright 2020-2025 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,7 @@ package ttf2gfx;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -63,7 +62,7 @@ public class DrawGFX extends JPanel {
       BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] {1.0f,2.0f}, 0);
 
   /** The Constant PANEL_WIDTH. */
-  private static final int PANEL_WIDTH = 490;
+  private static final int PANEL_WIDTH = 600;
   
   /** The scroll max row. */
   private int SCROLL_MAX_ROW = 0;
@@ -72,7 +71,7 @@ public class DrawGFX extends JPanel {
   private int GRID_HEIGHT = 560;
   
   /** The Constant NUM_COLS. */
-  private static final int NUM_COLS = 14;
+  private static final int NUM_COLS = 16;
   
   /** The Constant BOX_WIDTH. */
   private static final int BOX_WIDTH = 35;
@@ -150,12 +149,52 @@ public class DrawGFX extends JPanel {
       return;
     }
     currentCharacter.ch = selected.ch;
-    currentCharacter.replace_code = selected.nCode;
+    currentCharacter.replace_code = selected.uCode;
     currentCharacter.bValid = false;
     clearCurChar();
     availChars.clearCurChar();
   }
-  
+
+  public void copyCodeBlock(List<CharacterHelper> unicodeList,
+                            int iStartCode,
+                            int iEndCode,
+                            int iGFXStart) {
+//    System.out.println(String.format("***Start Code->%d",iStartCode));
+//    System.out.println(String.format("***End Code->%d",iEndCode));
+//    System.out.println(String.format("***End Code->%d",iGFXStart));
+    // copy to temp everything up to gfx start
+    int gfxIdx = iGFXStart - FontBuilder.START_CODE;
+    CharacterHelper h = characterList.get(gfxIdx);
+    // find our starting position within unicodeList
+//    System.out.println("find our starting position");
+    int unicodeIdx = 0;
+    int currentUnicode = 0;
+    do {
+      CharacterHelper u = unicodeList.get(unicodeIdx);
+      currentUnicode = u.uCode;
+      unicodeIdx++;
+    } while  (currentUnicode < iStartCode);
+    unicodeIdx--;
+    // now copy the code block until we reach ending code
+//    System.out.println("now copy the code block");
+    do {
+      CharacterHelper g = characterList.get(gfxIdx);
+      CharacterHelper u = unicodeList.get(unicodeIdx);
+      g.uCode = u.uCode;
+      g.ch = u.ch;
+      g.replace_code = -1;
+      g.bValid = true;
+      currentUnicode = u.uCode;
+      unicodeIdx++;
+      gfxIdx++;
+      if ((gfxIdx+FontBuilder.START_CODE) > 255)
+        break; // fail-safe in case too many characters to copy
+    } while (currentUnicode < iEndCode);
+    clearCurChar();
+    FontBuilder.availableCharPane.clearCurChar();
+    repaint();
+  }
+
   /**
    * Drop char.
    *
@@ -174,7 +213,7 @@ public class DrawGFX extends JPanel {
     currentCharacter = findChar(p);
     if (currentCharacter != null) {
       currentCharacter.ch = selected.ch;
-      currentCharacter.replace_code = selected.nCode;
+      currentCharacter.replace_code = selected.uCode;
       currentCharacter.bValid = true;
 //      System.out.println("Drop loc: "+ currentCharacter.r);
       clearCurChar();
@@ -212,10 +251,8 @@ public class DrawGFX extends JPanel {
   }
   
   /**
-   * Adds the to character list.
+   * Adds to character list.
    *
-   * @param nMaxRows
-   *          the n max rows
    */
   public void addToCharacterList() {
     currentCharacter = null;
@@ -223,6 +260,7 @@ public class DrawGFX extends JPanel {
     SCROLL_MAX_ROW = FontBuilder.END_CODE / NUM_COLS;
     if (SCROLL_MAX_ROW/2*2 != SCROLL_MAX_ROW) SCROLL_MAX_ROW++;
     String testCh = null;
+    String invalidCh = String.format("%c", 1);
     Point p;
     Rectangle rect=null;
     int x = MARGIN;
@@ -231,15 +269,21 @@ public class DrawGFX extends JPanel {
     for (int row=0; row<=SCROLL_MAX_ROW; row++) {
       for (int col=0; col<NUM_COLS; col++) {
         if (code_point > FontBuilder.END_CODE) break;
-        testCh =  String.format("%c", code_point);
+        testCh = " ";
         p = new Point(x, y);
-        rect = new Rectangle(p.x,p.y, BOX_WIDTH,BOX_HEIGHT);
-        if (canDisplay(code_point)) {
-            String sCode = String.format("%03d", code_point);
-            characterList.add(new CharacterHelper(row,rect,testCh,code_point,sCode,true));
+        rect = new Rectangle(p.x, p.y, BOX_WIDTH, BOX_HEIGHT);
+        if (code_point > 127) {
+          String sCode = String.format("%03d", code_point);
+          characterList.add(new CharacterHelper(row,rect,invalidCh,code_point,sCode,false));
         } else {
+          testCh = String.format("%c", code_point);
+          if (canDisplay(code_point)) {
             String sCode = String.format("%03d", code_point);
-            characterList.add(new CharacterHelper(row,rect,testCh,code_point,sCode,false));
+            characterList.add(new CharacterHelper(row, rect, testCh, code_point, sCode, true));
+          } else {
+            String sCode = String.format("%03d", code_point);
+            characterList.add(new CharacterHelper(row, rect, invalidCh, code_point, sCode, false));
+          }
         }
 //        int idx = row * NUM_COLS + col;
 //        System.out.println(String.format("list[%d] starts code %d char[%s]",idx,code_point,testCh));
@@ -300,7 +344,7 @@ public class DrawGFX extends JPanel {
       if (trackCharacter == null) {
         trackCharacter = h;
         repaint();
-      } else if (trackCharacter.nCode != h.nCode) {
+      } else if (trackCharacter.uCode != h.uCode) {
          trackCharacter = h;
          repaint();
       }
@@ -337,7 +381,7 @@ public class DrawGFX extends JPanel {
      *
      * @param e
      *          the e
-     * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+     * @see MouseAdapter#mouseClicked(MouseEvent)
      */
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -355,7 +399,7 @@ public class DrawGFX extends JPanel {
    *
    * @param g
    *          the g
-   * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+   * @see javax.swing.JComponent#paintComponent(Graphics)
    */
   @Override
   protected void paintComponent(Graphics g) {

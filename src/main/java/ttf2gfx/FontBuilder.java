@@ -2,7 +2,7 @@
  *
  * The MIT License
  *
- * Copyright 2020 Paul Conti
+ * Copyright 2023-2025 Paul Conti
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,6 @@ import javax.swing.Timer;
 import javax.swing.TransferHandler;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
 import javax.swing.JSplitPane;
 import javax.swing.ImageIcon;
 import javax.swing.GroupLayout;
@@ -50,6 +49,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.SwingConstants;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -72,12 +72,9 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.awt.event.ActionEvent;
 
 /**
@@ -89,12 +86,12 @@ public class FontBuilder extends JPanel {
   
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = 1L;
-  
+
   /** The txt font. */
   private JTextField txtFont;
-  
+
   /** The chosen char pane. */
-  private DrawGFX chosenCharPane;
+  public static DrawGFX chosenCharPane;
   
   /** The available char pane. */
   public static DrawTTF availableCharPane;
@@ -110,12 +107,8 @@ public class FontBuilder extends JPanel {
   
   /** The end code. */
   public static int END_CODE = 255;
-  
-  public JFormattedTextField txtStartCode;
+  public static JTextField txtGFXEND;
 
-  /** The txt end code. */
-  public JFormattedTextField txtEndCode;
-  
   /** The lbl status message. */
   static JLabel lblStatusMessage;
   private JLabel lblBusyWait;
@@ -125,20 +118,20 @@ public class FontBuilder extends JPanel {
    */
   public FontBuilder() {
     setLayout(new BorderLayout());
-    setBounds(100,100,1015, 577);
+    setBounds(100,100,1140, 580);
     
     JPanel infoPane = new JPanel();
-    infoPane.setPreferredSize(new Dimension(1015,50));
+    infoPane.setPreferredSize(new Dimension(1140,50));
     add(infoPane, BorderLayout.NORTH);
-    
+
     txtFont = new JTextField();
     txtFont.setColumns(32);
     txtFont.setEditable(false);
-    
-    JButton btnBrowse = new JButton("Browse...");
-    btnBrowse.addActionListener(new ActionListener() {
+
+    JButton btnCopy = new JButton("Copy Code Blocks");
+    btnCopy.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        new PostWorker().execute();
+        availableCharPane.copyCodeBlock();
       }
     });
 
@@ -149,100 +142,17 @@ public class FontBuilder extends JPanel {
     btnExport.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent evt) {
-        FontGenerator.generateFontSet(ttfFile);
+        FontGenerator.generateOutput(ttfFile);
       }
     });
     
-    JButton btnSearchCode = new JButton("Go to Unicode");
+    JButton btnSearchCode = new JButton("Jump to Unicode");
     btnSearchCode.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         availableCharPane.searchCharCode();
       }
     });
     btnSearchCode.setToolTipText("Enter a character's code.  Either as a decimal or as hexadecimal value.");
-    
-    JLabel lblStartCode = new JLabel("Start Code:");
-    txtStartCode = new JFormattedTextField(); 
-    // TAB Key Support
-    txtStartCode.addFocusListener(new FocusListener() {
-      @Override
-      public void focusGained(FocusEvent e) {
-        SwingUtilities.invokeLater(new Runnable() {  
-          @Override  
-          public void run() {
-            txtStartCode.selectAll();  
-          }   
-        });  
-      }
-
-      @Override
-      public void focusLost(FocusEvent e) {
-        try {
-          txtStartCode.commitEdit();
-        } catch (ParseException ep) {
-        }
-        START_CODE = Integer.valueOf(txtStartCode.getText());
-        chosenCharPane.addToCharacterList();
-        repaint();
-      }
-    });
-    txtStartCode.setColumns(4);
-    txtStartCode.setValue(String.valueOf(START_CODE));
-    txtStartCode.setToolTipText("Enter starting character code value in decimal. Do not use hexadecimal.");
-    // ENTER Key Support
-    txtStartCode.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent evt) {
-        try {
-          txtStartCode.commitEdit();
-        } catch (ParseException e) {
-        }
-        START_CODE = Integer.valueOf(txtStartCode.getText());
-        chosenCharPane.addToCharacterList();
-        repaint();
-      }
-    });
-    JLabel lblEndCode = new JLabel("End Code:");
-    txtEndCode = new JFormattedTextField(); 
-    // TAB Key Support
-    txtEndCode.addFocusListener(new FocusListener() {
-      @Override
-      public void focusGained(FocusEvent e) {
-        SwingUtilities.invokeLater(new Runnable() {  
-          @Override  
-          public void run() {
-            txtEndCode.selectAll();  
-          }   
-        });  
-      }
-
-      @Override
-      public void focusLost(FocusEvent e) {
-        try {
-          txtEndCode.commitEdit();
-        } catch (ParseException ep) {
-        }
-        END_CODE = Integer.valueOf(txtEndCode.getText());
-        chosenCharPane.addToCharacterList();
-        repaint();
-      }
-    });
-    txtEndCode.setColumns(4);
-    txtEndCode.setValue(String.valueOf(END_CODE));
-    txtEndCode.setToolTipText("Enter ending character code value in decimal. Do not use hexadecimal.");
-    // ENTER Key Support
-    txtEndCode.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent evt) {
-        try {
-          txtEndCode.commitEdit();
-        } catch (ParseException e) {
-        }
-        END_CODE = Integer.valueOf(txtEndCode.getText());
-        chosenCharPane.addToCharacterList();
-        repaint();
-      }
-    });
     JButton btnExit = new JButton("Exit");
     Icon iconExit = new ImageIcon(Ttf2GfxApp.class.getResource("/resources/logout.png"));
     btnExit.setIcon(iconExit);
@@ -255,56 +165,66 @@ public class FontBuilder extends JPanel {
     });
     btnExit.setToolTipText("Exit Application");
     
+    JPanel panel = new JPanel();
+
+
+    JLabel lblNewLabel_1 = new JLabel("Ending GFX Position");
+
+    txtGFXEND = new JTextField();
+    txtGFXEND.setHorizontalAlignment(SwingConstants.CENTER);
+    txtGFXEND.setText("255");
+    txtGFXEND.setColumns(3);
+
     GroupLayout gl_infoPane = new GroupLayout(infoPane);
     gl_infoPane.setHorizontalGroup(
       gl_infoPane.createParallelGroup(Alignment.LEADING)
         .addGroup(gl_infoPane.createSequentialGroup()
           .addContainerGap()
-          .addComponent(txtFont, GroupLayout.PREFERRED_SIZE, 308, GroupLayout.PREFERRED_SIZE)
+          .addComponent(btnCopy, GroupLayout.PREFERRED_SIZE, 162, GroupLayout.PREFERRED_SIZE)
+          .addPreferredGap(ComponentPlacement.UNRELATED)
+          .addComponent(btnSearchCode, GroupLayout.PREFERRED_SIZE, 151, GroupLayout.PREFERRED_SIZE)
+          .addGap(306)
+          .addComponent(lblNewLabel_1)
           .addGap(18)
-          .addComponent(btnBrowse)
-          .addPreferredGap(ComponentPlacement.RELATED)
-          .addComponent(btnSearchCode)
-          .addPreferredGap(ComponentPlacement.UNRELATED)
-          .addComponent(lblStartCode)
-          .addPreferredGap(ComponentPlacement.UNRELATED)
-          .addComponent(txtStartCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-          .addPreferredGap(ComponentPlacement.UNRELATED)
-          .addComponent(lblEndCode)
-          .addPreferredGap(ComponentPlacement.RELATED)
-          .addComponent(txtEndCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-          .addPreferredGap(ComponentPlacement.UNRELATED)
+          .addComponent(txtGFXEND, GroupLayout.PREFERRED_SIZE, 59, GroupLayout.PREFERRED_SIZE)
+          .addPreferredGap(ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
           .addComponent(btnExport)
           .addGap(18)
           .addComponent(btnExit)
-          .addContainerGap(81, Short.MAX_VALUE))
+          .addGap(121))
+        .addGroup(gl_infoPane.createSequentialGroup()
+          .addComponent(panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addContainerGap(1130, Short.MAX_VALUE))
     );
     gl_infoPane.setVerticalGroup(
-      gl_infoPane.createParallelGroup(Alignment.LEADING)
+      gl_infoPane.createParallelGroup(Alignment.TRAILING)
         .addGroup(gl_infoPane.createSequentialGroup()
-          .addGap(11)
-          .addGroup(gl_infoPane.createParallelGroup(Alignment.BASELINE)
-            .addComponent(txtFont, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-            .addComponent(btnBrowse, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnSearchCode)
-            .addComponent(lblStartCode)
-            .addComponent(txtStartCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-            .addComponent(lblEndCode)
-            .addComponent(txtEndCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-            .addComponent(btnExport)
-            .addComponent(btnExit))
-          .addGap(10))
+          .addGroup(gl_infoPane.createParallelGroup(Alignment.LEADING)
+            .addGroup(gl_infoPane.createSequentialGroup()
+              .addComponent(panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+              .addPreferredGap(ComponentPlacement.RELATED)
+              .addGroup(gl_infoPane.createParallelGroup(Alignment.BASELINE)
+                .addComponent(btnCopy, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnSearchCode)
+                .addComponent(btnExit)
+                .addComponent(btnExport)))
+            .addGroup(Alignment.TRAILING, gl_infoPane.createSequentialGroup()
+              .addContainerGap(25, Short.MAX_VALUE)
+              .addGroup(gl_infoPane.createParallelGroup(Alignment.BASELINE)
+                .addComponent(lblNewLabel_1)
+                .addComponent(txtGFXEND, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))))
+          .addContainerGap())
     );
     infoPane.setLayout(gl_infoPane);
-    
+
     JPanel statusBar = new JPanel();
     add(statusBar, BorderLayout.SOUTH);
-    
+
     JPanel buttonPane = new JPanel();
-    
-    
+
+
     lblStatusMessage = new JLabel("Begin by selecting a Font");
-    
+
     GroupLayout gl_buttonPane = new GroupLayout(buttonPane);
     gl_buttonPane.setHorizontalGroup(
       gl_buttonPane.createParallelGroup(Alignment.TRAILING)
@@ -321,7 +241,7 @@ public class FontBuilder extends JPanel {
           .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     buttonPane.setLayout(gl_buttonPane);
-    
+
     JLabel lblNewLabel = new JLabel("Drag characters from this Panel");
     GroupLayout gl_statusBar = new GroupLayout(statusBar);
     gl_statusBar.setHorizontalGroup(
@@ -343,21 +263,21 @@ public class FontBuilder extends JPanel {
           .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     statusBar.setLayout(gl_statusBar);
-    
+
     JPanel mainPane = new JPanel(new BorderLayout());
     JPanel titlesPane = new JPanel();
     titlesPane.setPreferredSize(new Dimension(1015,50));
     JLabel lblChoosenChars = new JLabel("Choosen Characters");
     mainPane.add(titlesPane,BorderLayout.NORTH);
     JLabel lblAvailableChars = new JLabel("Available Characters");
-    
+
     JButton btnDelete = new JButton("Delete Character");
     btnDelete.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         chosenCharPane.deleteChar();
       }
     });
-    
+
     GroupLayout gl_titlesPane = new GroupLayout(titlesPane);
     gl_titlesPane.setHorizontalGroup(
       gl_titlesPane.createParallelGroup(Alignment.LEADING)
@@ -385,7 +305,7 @@ public class FontBuilder extends JPanel {
     JSplitPane splitPane = new JSplitPane();
     
     chosenCharPane = new DrawGFX();
-    chosenCharPane.setPreferredSize(new Dimension(490,565));
+    chosenCharPane.setPreferredSize(new Dimension(560, 565));
     splitPane.setLeftComponent(chosenCharPane);
     chosenCharPane.setLayout(null);
     // now setup for drag and drop from availableCharPanel
@@ -432,7 +352,7 @@ public class FontBuilder extends JPanel {
     chosenCharPane.add(lblBusyWait);
     
     availableCharPane = new DrawTTF();
-    availableCharPane.setPreferredSize(new Dimension(490,100000));
+    availableCharPane.setPreferredSize(new Dimension(560, 100000));
     // setup for drag operations
     MyDragGestureListener dlistener = new MyDragGestureListener();
     DragSource dragSource = new DragSource();
@@ -517,6 +437,8 @@ public class FontBuilder extends JPanel {
         chosenCharPane.updateFont(ttfFile);
         availableCharPane.updateFont(ttfFile);
         availableCharPane.setPreferredSize(new Dimension(490,DrawTTF.GRID_HEIGHT));
+        Ttf2GfxApp.TopFrame.setTitle(Ttf2GfxApp.PROGRAM_TITLE+" - "+family);
+
       } catch (IOException e) {
         postStatusMsg(e.toString(), 10000);
         option = JFileChooser.ERROR_OPTION;
